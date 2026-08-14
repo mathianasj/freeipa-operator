@@ -55,6 +55,7 @@ jobs:
       - name: Build and push catalog
         run: |
           make catalog-build \
-            CATALOG_IMG=${{ env.IMAGE_TAG_BASE }}-catalog:${{ steps.determine-tag.outputs.tag }}
+            CATALOG_IMG=${{ env.IMAGE_TAG_BASE }}-catalog:${{ steps.determine-tag.outputs.tag }} \
+            BUNDLE_IMGS=${{ env.IMAGE_TAG_BASE }}-bundle:${{ steps.determine-tag.outputs.tag }}
           make catalog-push \
             CATALOG_IMG=${{ env.IMAGE_TAG_BASE }}-catalog:${{ steps.determine-tag.outputs.tag }}
