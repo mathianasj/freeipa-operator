@@ -25,7 +25,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: quay.io
-          username: mathianasj+freeipa_operator
+          username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Determine image tag
