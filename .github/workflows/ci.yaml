@@ -47,6 +47,8 @@ jobs:
 
       - name: Build and push bundle
         run: |
+          make bundle \
+            IMG=${{ env.IMAGE_TAG_BASE }}:${{ steps.determine-tag.outputs.tag }}
           make bundle-build \
             BUNDLE_IMG=${{ env.IMAGE_TAG_BASE }}-bundle:${{ steps.determine-tag.outputs.tag }}
           make bundle-push \
