@@ -1,8 +1,63 @@
 # freeipa-operator
-// TODO(user): Add simple overview of use/purpose
+
+An operator for managing FreeIPA identity servers on Kubernetes and OpenShift.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+The FreeIPA Operator automates the deployment and lifecycle management of FreeIPA servers on Kubernetes and OpenShift clusters. It provides a Kubernetes-native way to manage FreeIPA instances using Custom Resources.
+
+## Operator Hub / OpenShift Installation
+
+The operator is distributed as a bundle and catalog image for use with the Operator Lifecycle Manager (OLM).
+
+### Catalog Image
+
+```
+quay.io/mathianasj/freeipa-operator-catalog:latest
+```
+
+### Installing from Operator Hub in OpenShift
+
+1. In the OpenShift web console, navigate to **Operators** → **OperatorHub**
+2. Search for "FreeIPA" or "freeipa-operator"
+3. Select the operator and click **Install**
+4. Choose the installation mode (namespace scoped or cluster scoped)
+5. Click **Install** to proceed
+
+### Installing via CLI with OLM
+
+```bash
+# Create a subscription for the operator
+cat <<EOF | oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: freeipa-operator
+  namespace: operators
+spec:
+  channel: stable
+  name: freeipa-operator
+  source: mathianasj-freeipa-operator-catalog
+  sourceNamespace: olm
+EOF
+```
+
+### Creating a CatalogSource (if not auto-discovered)
+
+```bash
+cat <<EOF | oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: mathianasj-freeipa-operator-catalog
+  namespace: olm
+spec:
+  sourceType: grpc
+  image: quay.io/mathianasj/freeipa-operator-catalog:latest
+  displayName: FreeIPA Operator
+  publisher: mathianasj
+EOF
+```
 
 ## Getting Started
 
@@ -16,12 +71,27 @@
 **Build and push your image to the location specified by `IMG`:**
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/freeipa-operator:tag
+# Using the default quay.io/mathianasj registry
+make docker-buildx IMG=quay.io/mathianasj/freeipa-operator:latest
 ```
 
 **NOTE:** This image ought to be published in the personal registry you specified.
 And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+Make sure you have the proper permission to the registry if the above commands don't work.
+
+### Building and Pushing Bundle/Catalog Images
+
+```sh
+# Build and push bundle
+make bundle-build BUNDLE_IMG=quay.io/mathianasj/freeipa-operator-bundle:latest
+make bundle-push BUNDLE_IMG=quay.io/mathianasj/freeipa-operator-bundle:latest
+
+# Build and push catalog (requires bundle to be pushed first)
+make catalog-build \
+  CATALOG_IMG=quay.io/mathianasj/freeipa-operator-catalog:latest \
+  BUNDLE_IMGS=quay.io/mathianasj/freeipa-operator-bundle:latest
+make catalog-push CATALOG_IMG=quay.io/mathianasj/freeipa-operator-catalog:latest
+```
 
 **Install the CRDs into the cluster:**
 
@@ -32,7 +102,7 @@ make install
 **Deploy the Manager to the cluster with the image specified by `IMG`:**
 
 ```sh
-make deploy IMG=<some-registry>/freeipa-operator:tag
+make deploy IMG=quay.io/mathianasj/freeipa-operator:latest
 ```
 
 > **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
@@ -73,7 +143,7 @@ Following are the steps to build the installer and distribute this project to us
 1. Build the installer for the image built and published in the registry:
 
 ```sh
-make build-installer IMG=<some-registry>/freeipa-operator:tag
+make build-installer IMG=quay.io/mathianasj/freeipa-operator:tag
 ```
 
 NOTE: The makefile target mentioned above generates an 'install.yaml'
@@ -86,7 +156,7 @@ its dependencies.
 Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/freeipa-operator/<tag or branch>/dist/install.yaml
+kubectl apply -f https://raw.githubusercontent.com/mathianasj/freeipa-operator/<tag or branch>/dist/install.yaml
 ```
 
 ## Contributing
@@ -111,4 +181,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
