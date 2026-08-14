@@ -3,8 +3,7 @@ name: Build and Push Images
 on:
   push:
     branches: [ '**' ]
-  tag:
-    pattern: 'v*'
+    tags: [ 'v*' ]
 
 env:
   IMAGE_TAG_BASE: quay.io/mathianasj/freeipa-operator
