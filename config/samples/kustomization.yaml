@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- freeipa_v1alpha1_freeipa.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

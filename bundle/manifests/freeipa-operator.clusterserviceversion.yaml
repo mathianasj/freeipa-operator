@@ -1,0 +1,332 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "freeipa.mathianasj.io/v1alpha1",
+          "kind": "FreeIPA",
+          "metadata": {
+            "name": "freeipa-sample"
+          },
+          "spec": {
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "8Gi"
+              },
+              "requests": {
+                "cpu": "2",
+                "memory": "4Gi"
+              }
+            },
+            "volumeClaimTemplate": {
+              "accessModes": [
+                "ReadWriteOnce"
+              ],
+              "resources": {
+                "requests": {
+                  "storage": "10Gi"
+                }
+              }
+            }
+          }
+        }
+      ]
+    capabilities: Full Lifecycle
+    categories: Security
+    containerImage: quay.io/mathianasj/freeipa-operator:0.1.0
+    createdAt: "2026-08-11T01:02:13Z"
+    description: Deploys and manages the lifecycle of FreeIPA servers on OpenShift.
+    olm.skipRange: '>=0.1.0 <0.2.0'
+    operators.operatorframework.io/builder: operator-sdk-v1.39.2
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+    repository: https://github.com/mathianasj/freeipa-operator
+    support: mathianasj
+  name: freeipa-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: FreeIPA is the Schema for the freeipas API.
+      displayName: Free IPA
+      kind: FreeIPA
+      name: freeipas.freeipa.mathianasj.io
+      version: v1alpha1
+  description: |
+    The FreeIPA Operator deploys and manages the lifecycle of FreeIPA (Identity,
+    Policy, and Audit) servers on Red Hat OpenShift.
+
+    ## Features
+    - Deploys a single-node FreeIPA master as a StatefulSet with persistent storage
+    - Exposes DNS, Kerberos, kpasswd, LDAP/LDAPS and kadmin endpoints through a
+      LoadBalancer service (requires MetalLB Operator on bare-metal, or a cloud
+      load balancer provider)
+    - Exposes the web UI through a passthrough Route
+    - Generates and manages the FreeIPA administrator and directory manager passwords
+    - Creates the SecurityContextConstraints required by the systemd-based workload
+
+    ## Usage
+    Create a FreeIPA resource in a namespace. When volumeClaimTemplate is omitted the
+    instance uses ephemeral storage; for production set a volumeClaimTemplate.
+  displayName: FreeIPA Operator
+  icon:
+  - base64data: iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAYAAAD/Rn+7AAAAMUlEQVR42mNg8Fr7f1DjUQeOeAdiA/RQN+rAUQeOOnDUgaMOHHXgqANHWzOjDqQLBgB1nI1ivUQEOgAAAABJRU5ErkJggg==
+    mediatype: image/png
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - apps
+          resources:
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - config.openshift.io
+          resources:
+          - dnses
+          verbs:
+          - get
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - create
+          - get
+          - list
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - pods/exec
+          verbs:
+          - create
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          - services
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - freeipa.mathianasj.io
+          resources:
+          - freeipas
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - freeipa.mathianasj.io
+          resources:
+          - freeipas/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - freeipa.mathianasj.io
+          resources:
+          - freeipas/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes/custom-host
+          verbs:
+          - create
+        - apiGroups:
+          - security.openshift.io
+          resources:
+          - securitycontextconstraints
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: freeipa-operator-controller-manager
+      deployments:
+      - label:
+          app.kubernetes.io/managed-by: kustomize
+          app.kubernetes.io/name: freeipa-operator
+          control-plane: controller-manager
+        name: freeipa-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              annotations:
+                kubectl.kubernetes.io/default-container: manager
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - --metrics-bind-address=:8443
+                - --leader-elect
+                - --health-probe-bind-address=:8081
+                command:
+                - /manager
+                image: controller:latest
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                name: manager
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                resources:
+                  limits:
+                    cpu: 500m
+                    memory: 128Mi
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+              securityContext:
+                runAsNonRoot: true
+              serviceAccountName: freeipa-operator-controller-manager
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: freeipa-operator-controller-manager
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: false
+    type: AllNamespaces
+  keywords:
+  - freeipa
+  - identity
+  - ldap
+  - kerberos
+  - dns
+  - sso
+  links:
+  - name: FreeIPA Operator
+    url: https://github.com/mathianasj/freeipa-operator
+  - name: FreeIPA Project
+    url: https://www.freeipa.org/
+  maintainers:
+  - email: mathianasj@users.noreply.github.com
+    name: mathianasj
+  maturity: alpha
+  minKubeVersion: 1.31.0
+  provider:
+    name: mathianasj
+    url: https://github.com/mathianasj/freeipa-operator
+  version: 0.0.1

@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: freeipa-operator
+  name: freeipa-operator-freeipa-viewer-role
+rules:
+- apiGroups:
+  - freeipa.mathianasj.io
+  resources:
+  - freeipas
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - freeipa.mathianasj.io
+  resources:
+  - freeipas/status
+  verbs:
+  - get

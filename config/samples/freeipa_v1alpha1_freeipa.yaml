@@ -1,0 +1,48 @@
+apiVersion: freeipa.mathianasj.io/v1alpha1
+kind: FreeIPA
+metadata:
+  name: freeipa-sample
+spec:
+  # Optional: fully qualified hostname used when installing FreeIPA.
+  # Defaults to <name>-<namespace>.<domain>.
+  # host: freeipa.example.com
+  # Optional: root DNS domain used to derive the default host name
+  # (<name>-<namespace>.<domain>) and the Kerberos realm (upper-cased domain).
+  # When omitted the cluster ingress domain is used.
+  # domain: example.com
+  # Optional: Kerberos realm. Defaults to the upper-cased domain (or host).
+  # realm: EXAMPLE.COM
+  # Optional: reference an existing secret holding the IPA_ADMIN_PASSWORD and
+  # IPA_DM_PASSWORD keys. When omitted random passwords are generated.
+  # passwordSecret: my-freeipa-passwords
+  # Persistent storage for the FreeIPA data (/data). When omitted an ephemeral
+  # volume is used.
+  volumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  # Optional: request a specific external IP for the LoadBalancer service.
+  # It must belong to an address pool managed by the load balancer provider.
+  # loadBalancerIP: 192.168.100.10
+  # Optional: TLS termination of the web UI route. When omitted the route uses
+  # passthrough and FreeIPA serves its own certificate. Use reencrypt to let
+  # the Ingress Controller terminate TLS (presenting the cluster's default
+  # ingress certificate) and re-encrypt to FreeIPA. The operator automatically
+  # fetches the FreeIPA CA certificate from the server to validate the backend;
+  # set destinationCACertificate to override it.
+  # route:
+  #   termination: reencrypt
+  # Optional: expose the UDP endpoints (DNS 53, Kerberos 88, kpasswd 464)
+  # through a dedicated LoadBalancer service. Use this when the load balancer
+  # provider (e.g. AWS NLB) cannot host TCP and UDP on the same service.
+  # udpService:
+  #   loadBalancerIP: 192.168.100.11
+  resources:
+    requests:
+      cpu: "2"
+      memory: 4Gi
+    limits:
+      cpu: "4"
+      memory: 8Gi
