@@ -80,7 +80,7 @@ type FreeIPAReconciler struct {
 // +kubebuilder:rbac:groups=route.openshift.io,resources=routes/custom-host,verbs=create
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=config.openshift.io,resources=dnses,verbs=get
-// +kubebuilder:rbac:groups=config.openshift.io,resources=ingresses,verbs=get;list
+// +kubebuilder:rbac:groups=config.openshift.io,resources=ingresses,verbs=get;list;watch
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
 // +kubebuilder:rbac:groups=core,resources=events,verbs=create;patch
