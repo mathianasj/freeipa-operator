@@ -710,6 +710,7 @@ func StatefulSetForFreeIPA(m *freeipav1alpha1.FreeIPA, ingressDomain string, lbI
 					Annotations: map[string]string{"openshift.io/scc": SCCName(m)},
 				},
 				Spec: corev1.PodSpec{
+					DNSPolicy: corev1.DNSDefault,
 					Containers: []corev1.Container{
 						{
 							Name:      "freeipa",
