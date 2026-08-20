@@ -183,9 +183,10 @@ const WebConfigHashAnnotation = "freeipa.mathianasj.io/web-config-hash"
 
 // webLabels returns the labels selecting the web proxy resources.
 func webLabels(m *freeipav1alpha1.FreeIPA) map[string]string {
-	l := LabelsForFreeIPA(m)
-	l["component"] = "web"
-	return l
+	return map[string]string{
+		"component": "web",
+		"freeipa":   m.Name,
+	}
 }
 
 // servicePorts returns every endpoint the FreeIPA server exposes.
