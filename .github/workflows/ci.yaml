@@ -49,6 +49,23 @@ jobs:
         run: |
           make bundle \
             IMG=${{ env.IMAGE_TAG_BASE }}:${{ steps.determine-tag.outputs.tag }}
+
+      - name: Ensure SCC permissions in CSV
+        run: |
+          if ! grep -q 'security.openshift.io' bundle/manifests/freeipa-operator.clusterserviceversion.yaml; then
+            yq -i '
+              .spec.install.spec.clusterPermissions += [{
+                "rules": [{
+                  "apiGroups": ["security.openshift.io"],
+                  "resources": ["securitycontextconstraints"],
+                  "verbs": ["get", "list", "watch", "create", "update", "patch", "delete"]
+                }]
+              }]
+            ' bundle/manifests/freeipa-operator.clusterserviceversion.yaml
+          fi
+
+      - name: Build and push bundle image
+        run: |
           make bundle-build \
             BUNDLE_IMG=${{ env.IMAGE_TAG_BASE }}-bundle:${{ steps.determine-tag.outputs.tag }}
           make bundle-push \
