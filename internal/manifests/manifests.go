@@ -624,7 +624,7 @@ func installArgs(m *freeipav1alpha1.FreeIPA, host, realm string) []string {
 		"--no-ssh",
 	}
 	if m.Spec.DNS != nil {
-		args = append(args, "--setup-dns", "--dns=127.0.0.1")
+		args = append(args, "--setup-dns")
 		if len(m.Spec.DNS.Forwarders) == 0 {
 			args = append(args, "--no-forwarders")
 		} else {
